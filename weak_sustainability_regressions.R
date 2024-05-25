@@ -354,7 +354,7 @@ for (i in 1:nrow(df)) {
 
 df$Water_Area <- water.area
 df$Water_Pct <- df$Water_Area / (df$Water_Area + df$Land_Area)
-df$Water <- df$Land_Area * df$Water.2011
+df$Water_X <- df$Land_Area * df$Water.2011
 df$Water_Diff <- df$Water.2011 - df$Water_Pct
 
 ggplot(data = df, aes(x = Water.2011, y = Water_Pct)) +
@@ -393,6 +393,10 @@ stargazer(checkerooni, type = 'text')
 
 # Running regressions for all counties
 
+water.mod <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                         + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                         + Wetlands.2011 + Rural + Small + factor(State) | . - Employment_Growth_Rate + Bartik, data = df)
+
 development.mod <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                          + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                          + Wetlands.2011 + Rural + Small + factor(State) | . - Employment_Growth_Rate + Bartik, data = df)
@@ -421,6 +425,7 @@ wetlands.mod <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income + 
                       + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                       + Wetlands.2011 + Rural + Small + factor(State) | . - Employment_Growth_Rate + Bartik, data = df)
 
+water.modx <- coeftest(water.mod, vcov = vcovCL(water.mod, type = 'HC1'))
 development.modx <- coeftest(development.mod, vcov = vcovCL(development.mod, type = 'HC1'))
 barren.modx <- coeftest(barren.mod, vcov = vcovCL(barren.mod, type = 'HC1'))
 forests.modx <- coeftest(forests.mod, vcov = vcovCL(forests.mod, type = 'HC1'))
@@ -429,13 +434,17 @@ grasslands.modx <- coeftest(grasslands.mod, vcov = vcovCL(grasslands.mod, type =
 agriculture.modx <- coeftest(agriculture.mod, vcov = vcovCL(agriculture.mod, type = 'HC1'))
 wetlands.modx <- coeftest(wetlands.mod, vcov = vcovCL(wetlands.mod, type = 'HC1'))
 
-stargazer(development.mod, barren.mod, forests.mod, shrublands.mod, grasslands.mod, agriculture.mod, wetlands.mod,
+stargazer(water.mod, development.mod, barren.mod, forests.mod, shrublands.mod, grasslands.mod, agriculture.mod, wetlands.mod,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.modx, barren.modx, forests.modx, shrublands.modx, grasslands.modx, agriculture.modx, wetlands.modx,
+stargazer(water.modx, development.modx, barren.modx, forests.modx, shrublands.modx, grasslands.modx, agriculture.modx, wetlands.modx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Running regressions for rural counties
+
+water.rural <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                           + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Rural == 1),])
 
 development.rural <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                            + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -465,6 +474,7 @@ wetlands.rural <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income 
                         + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                         + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Rural == 1),])
 
+water.ruralx <- coeftest(water.rural, vcov = vcovCL(water.rural, type = 'HC1'))
 development.ruralx <- coeftest(development.rural, vcov = vcovCL(development.rural, type = 'HC1'))
 barren.ruralx <- coeftest(barren.rural, vcov = vcovCL(barren.rural, type = 'HC1'))
 forests.ruralx <- coeftest(forests.rural, vcov = vcovCL(forests.rural, type = 'HC1'))
@@ -473,13 +483,17 @@ grasslands.ruralx <- coeftest(grasslands.rural, vcov = vcovCL(grasslands.rural, 
 agriculture.ruralx <- coeftest(agriculture.rural, vcov = vcovCL(agriculture.rural, type = 'HC1'))
 wetlands.ruralx <- coeftest(wetlands.rural, vcov = vcovCL(wetlands.rural, type = 'HC1'))
 
-stargazer(development.rural, barren.rural, forests.rural, shrublands.rural, grasslands.rural, agriculture.rural, wetlands.rural,
+stargazer(water.rural, development.rural, barren.rural, forests.rural, shrublands.rural, grasslands.rural, agriculture.rural, wetlands.rural,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.ruralx, barren.ruralx, forests.ruralx, shrublands.ruralx, grasslands.ruralx, agriculture.ruralx, wetlands.ruralx,
+stargazer(water.ruralx, development.ruralx, barren.ruralx, forests.ruralx, shrublands.ruralx, grasslands.ruralx, agriculture.ruralx, wetlands.ruralx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Running regressions for all non-rural counties
+
+water.urban <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                           + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Rural == 0),])
 
 development.urban <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                            + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -509,6 +523,7 @@ wetlands.urban <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income 
                         + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                         + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Rural == 0),])
 
+water.urbanx <- coeftest(water.urban, vcov = vcovCL(water.urban, type = 'HC1'))
 development.urbanx <- coeftest(development.urban, vcov = vcovCL(development.urban, type = 'HC1'))
 barren.urbanx <- coeftest(barren.urban, vcov = vcovCL(barren.urban, type = 'HC1'))
 forests.urbanx <- coeftest(forests.urban, vcov = vcovCL(forests.urban, type = 'HC1'))
@@ -517,13 +532,17 @@ grasslands.urbanx <- coeftest(grasslands.urban, vcov = vcovCL(grasslands.urban, 
 agriculture.urbanx <- coeftest(agriculture.urban, vcov = vcovCL(agriculture.urban, type = 'HC1'))
 wetlands.urbanx <- coeftest(wetlands.urban, vcov = vcovCL(wetlands.urban, type = 'HC1'))
 
-stargazer(development.urban, barren.urban, forests.urban, shrublands.urban, grasslands.urban, agriculture.urban, wetlands.urban,
+stargazer(water.urban, development.urban, barren.urban, forests.urban, shrublands.urban, grasslands.urban, agriculture.urban, wetlands.urban,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.urbanx, barren.urbanx, forests.urbanx, shrublands.urbanx, grasslands.urbanx, agriculture.urbanx, wetlands.urbanx,
+stargazer(water.urbanx, development.urbanx, barren.urbanx, forests.urbanx, shrublands.urbanx, grasslands.urbanx, agriculture.urbanx, wetlands.urbanx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Running regressions for all large metropolitan counties (UR codes 1-3)
+
+water.large <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                           + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Large == 1),])
 
 development.large <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                            + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -553,6 +572,7 @@ wetlands.large <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income 
                         + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                         + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Large == 1),])
 
+water.largex <- coeftest(water.large, vcov = vcovCL(water.large, type = 'HC1'))
 development.largex <- coeftest(development.large, vcov = vcovCL(development.large, type = 'HC1'))
 barren.largex <- coeftest(barren.large, vcov = vcovCL(barren.large, type = 'HC1'))
 forests.largex <- coeftest(forests.large, vcov = vcovCL(forests.large, type = 'HC1'))
@@ -561,13 +581,17 @@ grasslands.largex <- coeftest(grasslands.large, vcov = vcovCL(grasslands.large, 
 agriculture.largex <- coeftest(agriculture.large, vcov = vcovCL(agriculture.large, type = 'HC1'))
 wetlands.largex <- coeftest(wetlands.large, vcov = vcovCL(wetlands.large, type = 'HC1'))
 
-stargazer(development.large, barren.large, forests.large, shrublands.large, grasslands.large, agriculture.large, wetlands.large,
+stargazer(water.large, development.large, barren.large, forests.large, shrublands.large, grasslands.large, agriculture.large, wetlands.large,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.largex, barren.largex, forests.largex, shrublands.largex, grasslands.largex, agriculture.largex, wetlands.largex,
+stargazer(water.largex, development.largex, barren.largex, forests.largex, shrublands.largex, grasslands.largex, agriculture.largex, wetlands.largex,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Running regressions for all small metropolitan counties (UR codes 4 and 5)
+
+water.small <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                           + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Small == 1),])
 
 development.small <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                            + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -597,6 +621,7 @@ wetlands.small <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income 
                         + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                         + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Small == 1),])
 
+water.smallx <- coeftest(water.small, vcov = vcovCL(water.small, type = 'HC1'))
 development.smallx <- coeftest(development.small, vcov = vcovCL(development.small, type = 'HC1'))
 barren.smallx <- coeftest(barren.small, vcov = vcovCL(barren.small, type = 'HC1'))
 forests.smallx <- coeftest(forests.small, vcov = vcovCL(forests.small, type = 'HC1'))
@@ -605,10 +630,10 @@ grasslands.smallx <- coeftest(grasslands.small, vcov = vcovCL(grasslands.small, 
 agriculture.smallx <- coeftest(agriculture.small, vcov = vcovCL(agriculture.small, type = 'HC1'))
 wetlands.smallx <- coeftest(wetlands.small, vcov = vcovCL(wetlands.small, type = 'HC1'))
 
-stargazer(development.small, barren.small, forests.small, shrublands.small, grasslands.small, agriculture.small, wetlands.small,
+stargazer(water.small, development.small, barren.small, forests.small, shrublands.small, grasslands.small, agriculture.small, wetlands.small,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.smallx, barren.smallx, forests.smallx, shrublands.smallx, grasslands.smallx, agriculture.smallx, wetlands.smallx,
+stargazer(water.smallx, development.smallx, barren.smallx, forests.smallx, shrublands.smallx, grasslands.smallx, agriculture.smallx, wetlands.smallx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Determining halves for income
@@ -616,6 +641,10 @@ stargazer(development.smallx, barren.smallx, forests.smallx, shrublands.smallx, 
 df$Rich <- as.integer(df$Income > median(df$Income, na.rm = T))
 
 # Running regressions for higher half of incomes
+
+water.rich <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                          + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                          + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Rich == 1),])
 
 development.rich <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -645,6 +674,7 @@ wetlands.rich <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income +
                        + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                        + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Rich == 1),])
 
+water.richx <- coeftest(water.rich, vcov = vcovCL(water.rich, type = 'HC1'))
 development.richx <- coeftest(development.rich, vcov = vcovCL(development.rich, type = 'HC1'))
 barren.richx <- coeftest(barren.rich, vcov = vcovCL(barren.rich, type = 'HC1'))
 forests.richx <- coeftest(forests.rich, vcov = vcovCL(forests.rich, type = 'HC1'))
@@ -653,13 +683,17 @@ grasslands.richx <- coeftest(grasslands.rich, vcov = vcovCL(grasslands.rich, typ
 agriculture.richx <- coeftest(agriculture.rich, vcov = vcovCL(agriculture.rich, type = 'HC1'))
 wetlands.richx <- coeftest(wetlands.rich, vcov = vcovCL(wetlands.rich, type = 'HC1'))
 
-stargazer(development.rich, barren.rich, forests.rich, shrublands.rich, grasslands.rich, agriculture.rich, wetlands.rich,
+stargazer(water.rich, development.rich, barren.rich, forests.rich, shrublands.rich, grasslands.rich, agriculture.rich, wetlands.rich,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.richx, barren.richx, forests.richx, shrublands.richx, grasslands.richx, agriculture.richx, wetlands.richx,
+stargazer(water.richx, development.richx, barren.richx, forests.richx, shrublands.richx, grasslands.richx, agriculture.richx, wetlands.richx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Running regressions for lower half of incomes
+
+water.poor <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                          + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                          + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Rich == 0),])
 
 development.poor <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -689,6 +723,7 @@ wetlands.poor <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income +
                        + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                        + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Rich == 0),])
 
+water.poorx <- coeftest(water.poor, vcov = vcovCL(water.poor, type = 'HC1'))
 development.poorx <- coeftest(development.poor, vcov = vcovCL(development.poor, type = 'HC1'))
 barren.poorx <- coeftest(barren.poor, vcov = vcovCL(barren.poor, type = 'HC1'))
 forests.poorx <- coeftest(forests.poor, vcov = vcovCL(forests.poor, type = 'HC1'))
@@ -697,10 +732,10 @@ grasslands.poorx <- coeftest(grasslands.poor, vcov = vcovCL(grasslands.poor, typ
 agriculture.poorx <- coeftest(agriculture.poor, vcov = vcovCL(agriculture.poor, type = 'HC1'))
 wetlands.poorx <- coeftest(wetlands.poor, vcov = vcovCL(wetlands.poor, type = 'HC1'))
 
-stargazer(development.poor, barren.poor, forests.poor, shrublands.poor, grasslands.poor, agriculture.poor, wetlands.poor,
+stargazer(water.poor, development.poor, barren.poor, forests.poor, shrublands.poor, grasslands.poor, agriculture.poor, wetlands.poor,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.poorx, barren.poorx, forests.poorx, shrublands.poorx, grasslands.poorx, agriculture.poorx, wetlands.poorx,
+stargazer(water.poorx, development.poorx, barren.poorx, forests.poorx, shrublands.poorx, grasslands.poorx, agriculture.poorx, wetlands.poorx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Determining halves for growth rates
@@ -711,6 +746,10 @@ df$Exo_Fast <- as.integer(df$Exogenous_Growth > median(df$Exogenous_Growth, na.r
 df$Fast <- as.integer(df$Employment_Growth_Rate > median(df$Employment_Growth_Rate, na.rm = T))
 
 # Running regressions for higher half of growth rates
+
+water.fast <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                          + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                          + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Fast == 1),])
 
 development.fast <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -740,6 +779,7 @@ wetlands.fast <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income +
                        + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                        + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Fast == 1),])
 
+water.fastx <- coeftest(water.fast, vcov = vcovCL(water.fast, type = 'HC1'))
 development.fastx <- coeftest(development.fast, vcov = vcovCL(development.fast, type = 'HC1'))
 barren.fastx <- coeftest(barren.fast, vcov = vcovCL(barren.fast, type = 'HC1'))
 forests.fastx <- coeftest(forests.fast, vcov = vcovCL(forests.fast, type = 'HC1'))
@@ -748,13 +788,17 @@ grasslands.fastx <- coeftest(grasslands.fast, vcov = vcovCL(grasslands.fast, typ
 agriculture.fastx <- coeftest(agriculture.fast, vcov = vcovCL(agriculture.fast, type = 'HC1'))
 wetlands.fastx <- coeftest(wetlands.fast, vcov = vcovCL(wetlands.fast, type = 'HC1'))
 
-stargazer(development.fast, barren.fast, forests.fast, shrublands.fast, grasslands.fast, agriculture.fast, wetlands.fast,
+stargazer(water.fast, development.fast, barren.fast, forests.fast, shrublands.fast, grasslands.fast, agriculture.fast, wetlands.fast,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.fastx, barren.fastx, forests.fastx, shrublands.fastx, grasslands.fastx, agriculture.fastx, wetlands.fastx,
+stargazer(water.fastx, development.fastx, barren.fastx, forests.fastx, shrublands.fastx, grasslands.fastx, agriculture.fastx, wetlands.fastx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Running regressions for lower half of growth rates
+
+water.slow <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                          + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                          + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Fast == 0),])
 
 development.slow <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -784,6 +828,7 @@ wetlands.slow <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income +
                        + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                        + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Fast == 0),])
 
+water.slowx <- coeftest(water.slow, vcov = vcovCL(water.slow, type = 'HC1'))
 development.slowx <- coeftest(development.slow, vcov = vcovCL(development.slow, type = 'HC1'))
 barren.slowx <- coeftest(barren.slow, vcov = vcovCL(barren.slow, type = 'HC1'))
 forests.slowx <- coeftest(forests.slow, vcov = vcovCL(forests.slow, type = 'HC1'))
@@ -792,10 +837,10 @@ grasslands.slowx <- coeftest(grasslands.slow, vcov = vcovCL(grasslands.slow, typ
 agriculture.slowx <- coeftest(agriculture.slow, vcov = vcovCL(agriculture.slow, type = 'HC1'))
 wetlands.slowx <- coeftest(wetlands.slow, vcov = vcovCL(wetlands.slow, type = 'HC1'))
 
-stargazer(development.slow, barren.slow, forests.slow, shrublands.slow, grasslands.slow, agriculture.slow, wetlands.slow,
+stargazer(water.slow, development.slow, barren.slow, forests.slow, shrublands.slow, grasslands.slow, agriculture.slow, wetlands.slow,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.slowx, barren.slowx, forests.slowx, shrublands.slowx, grasslands.slowx, agriculture.slowx, wetlands.slowx,
+stargazer(water.slowx, development.slowx, barren.slowx, forests.slowx, shrublands.slowx, grasslands.slowx, agriculture.slowx, wetlands.slowx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Dividing states into east / west
@@ -822,6 +867,10 @@ for (i in 1:nrow(df)) {
 df$Region <- regions
 
 # Running regressions for the east
+
+water.east <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                          + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                          + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Region == 'East'),])
 
 development.east <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -851,6 +900,7 @@ wetlands.east <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income +
                        + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                        + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Region == 'East'),])
 
+water.eastx <- coeftest(water.east, vcov = vcovCL(water.east, type = 'HC1'))
 development.eastx <- coeftest(development.east, vcov = vcovCL(development.east, type = 'HC1'))
 barren.eastx <- coeftest(barren.east, vcov = vcovCL(barren.east, type = 'HC1'))
 forests.eastx <- coeftest(forests.east, vcov = vcovCL(forests.east, type = 'HC1'))
@@ -859,13 +909,17 @@ grasslands.eastx <- coeftest(grasslands.east, vcov = vcovCL(grasslands.east, typ
 agriculture.eastx <- coeftest(agriculture.east, vcov = vcovCL(agriculture.east, type = 'HC1'))
 wetlands.eastx <- coeftest(wetlands.east, vcov = vcovCL(wetlands.east, type = 'HC1'))
 
-stargazer(development.east, barren.east, forests.east, shrublands.east, grasslands.east, agriculture.east, wetlands.east,
+stargazer(water.east, development.east, barren.east, forests.east, shrublands.east, grasslands.east, agriculture.east, wetlands.east,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.eastx, barren.eastx, forests.eastx, shrublands.eastx, grasslands.eastx, agriculture.eastx, wetlands.eastx,
+stargazer(water.eastx, development.eastx, barren.eastx, forests.eastx, shrublands.eastx, grasslands.eastx, agriculture.eastx, wetlands.eastx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Running regressions for the west
+
+water.west <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                          + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                          + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Region == 'West'),])
 
 development.west <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -895,6 +949,7 @@ wetlands.west <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income +
                        + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                        + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = df[which(df$Region == 'West'),])
 
+water.westx <- coeftest(water.west, vcov = vcovCL(water.west, type = 'HC1'))
 development.westx <- coeftest(development.west, vcov = vcovCL(development.west, type = 'HC1'))
 barren.westx <- coeftest(barren.west, vcov = vcovCL(barren.west, type = 'HC1'))
 forests.westx <- coeftest(forests.west, vcov = vcovCL(forests.west, type = 'HC1'))
@@ -903,49 +958,49 @@ grasslands.westx <- coeftest(grasslands.west, vcov = vcovCL(grasslands.west, typ
 agriculture.westx <- coeftest(agriculture.west, vcov = vcovCL(agriculture.west, type = 'HC1'))
 wetlands.westx <- coeftest(wetlands.west, vcov = vcovCL(wetlands.west, type = 'HC1'))
 
-stargazer(development.west, barren.west, forests.west, shrublands.west, grasslands.west, agriculture.west, wetlands.west,
+stargazer(water.west, development.west, barren.west, forests.west, shrublands.west, grasslands.west, agriculture.west, wetlands.west,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.westx, barren.westx, forests.westx, shrublands.westx, grasslands.westx, agriculture.westx, wetlands.westx,
+stargazer(water.westx, development.westx, barren.westx, forests.westx, shrublands.westx, grasslands.westx, agriculture.westx, wetlands.westx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Saving results
 
-write.csv(stargazer(development.modx, barren.modx, forests.modx, shrublands.modx, grasslands.modx, agriculture.modx, wetlands.modx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/main.txt'), row.names = FALSE)
-write.csv(stargazer(development.ruralx, barren.ruralx, forests.ruralx, shrublands.ruralx, grasslands.ruralx, agriculture.ruralx, wetlands.ruralx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/rural.txt'), row.names = FALSE)
-write.csv(stargazer(development.urbanx, barren.urbanx, forests.urbanx, shrublands.urbanx, grasslands.urbanx, agriculture.urbanx, wetlands.urbanx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/non_rural.txt'), row.names = FALSE)
-write.csv(stargazer(development.largex, barren.largex, forests.largex, shrublands.largex, grasslands.largex, agriculture.largex, wetlands.largex, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/large_urban.txt'), row.names = FALSE)
-write.csv(stargazer(development.smallx, barren.smallx, forests.smallx, shrublands.smallx, grasslands.smallx, agriculture.smallx, wetlands.smallx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/small_urban.txt'), row.names = FALSE)
-write.csv(stargazer(development.richx, barren.richx, forests.richx, shrublands.richx, grasslands.richx, agriculture.richx, wetlands.richx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/rich.txt'), row.names = FALSE)
-write.csv(stargazer(development.poorx, barren.poorx, forests.poorx, shrublands.poorx, grasslands.poorx, agriculture.poorx, wetlands.poorx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/poor.txt'), row.names = FALSE)
-write.csv(stargazer(development.fastx, barren.fastx, forests.fastx, shrublands.fastx, grasslands.fastx, agriculture.fastx, wetlands.fastx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/fast.txt'), row.names = FALSE)
-write.csv(stargazer(development.slowx, barren.slowx, forests.slowx, shrublands.slowx, grasslands.slowx, agriculture.slowx, wetlands.slowx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/slow.txt'), row.names = FALSE)
-write.csv(stargazer(development.eastx, barren.eastx, forests.eastx, shrublands.eastx, grasslands.eastx, agriculture.eastx, wetlands.eastx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/east.txt'), row.names = FALSE)
-write.csv(stargazer(development.westx, barren.westx, forests.westx, shrublands.westx, grasslands.westx, agriculture.westx, wetlands.westx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/west.txt'), row.names = FALSE)
+write.csv(stargazer(water.modx, development.modx, barren.modx, forests.modx, shrublands.modx, grasslands.modx, agriculture.modx, wetlands.modx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/main.txt'), row.names = FALSE)
+write.csv(stargazer(water.ruralx, development.ruralx, barren.ruralx, forests.ruralx, shrublands.ruralx, grasslands.ruralx, agriculture.ruralx, wetlands.ruralx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/rural.txt'), row.names = FALSE)
+write.csv(stargazer(water.urbanx, development.urbanx, barren.urbanx, forests.urbanx, shrublands.urbanx, grasslands.urbanx, agriculture.urbanx, wetlands.urbanx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/non_rural.txt'), row.names = FALSE)
+write.csv(stargazer(water.largex, development.largex, barren.largex, forests.largex, shrublands.largex, grasslands.largex, agriculture.largex, wetlands.largex, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/large_urban.txt'), row.names = FALSE)
+write.csv(stargazer(water.smallx, development.smallx, barren.smallx, forests.smallx, shrublands.smallx, grasslands.smallx, agriculture.smallx, wetlands.smallx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/small_urban.txt'), row.names = FALSE)
+write.csv(stargazer(water.richx, development.richx, barren.richx, forests.richx, shrublands.richx, grasslands.richx, agriculture.richx, wetlands.richx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/rich.txt'), row.names = FALSE)
+write.csv(stargazer(water.poorx, development.poorx, barren.poorx, forests.poorx, shrublands.poorx, grasslands.poorx, agriculture.poorx, wetlands.poorx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/poor.txt'), row.names = FALSE)
+write.csv(stargazer(water.fastx, development.fastx, barren.fastx, forests.fastx, shrublands.fastx, grasslands.fastx, agriculture.fastx, wetlands.fastx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/fast.txt'), row.names = FALSE)
+write.csv(stargazer(water.slow, development.slowx, barren.slowx, forests.slowx, shrublands.slowx, grasslands.slowx, agriculture.slowx, wetlands.slowx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/slow.txt'), row.names = FALSE)
+write.csv(stargazer(water.eastx, development.eastx, barren.eastx, forests.eastx, shrublands.eastx, grasslands.eastx, agriculture.eastx, wetlands.eastx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/east.txt'), row.names = FALSE)
+write.csv(stargazer(water.westx, development.westx, barren.westx, forests.westx, shrublands.westx, grasslands.westx, agriculture.westx, wetlands.westx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/west.txt'), row.names = FALSE)
 
-f.stats.main <- rep(65.04, 7)
-f.stats.rural <- rep(22.13, 7)
-f.stats.urban <- rep(76.04, 7)
-f.stats.large <- rep(6.15, 7)
-f.stats.small <- rep(50.11, 7)
-f.stats.rich <- rep(47.48, 7)
-f.stats.poor <- rep(23.50, 7)
-f.stats.fast <- rep(34.63, 7)
-f.stats.slow <- rep(34.20, 7)
-f.stats.east <- rep(20.49, 7)
-f.stats.west <- rep(44.47, 7)
+f.stats.main <- rep(65.04, 8)
+f.stats.rural <- rep(22.13, 8)
+f.stats.urban <- rep(76.04, 8)
+f.stats.large <- rep(6.15, 8)
+f.stats.small <- rep(50.11, 8)
+f.stats.rich <- rep(47.48, 8)
+f.stats.poor <- rep(23.50, 8)
+f.stats.fast <- rep(34.63, 8)
+f.stats.slow <- rep(34.20, 8)
+f.stats.east <- rep(20.49, 8)
+f.stats.west <- rep(44.47, 8)
 
-nobs.main <- rep(3106, 7)
-nobs.rural <- rep(1309, 7)
-nobs.urban <- rep(1797, 7)
-nobs.large <- rep(805, 7)
-nobs.small <- rep(992, 7)
-nobs.rich <- rep(1553, 7)
-nobs.poor <- rep(1553, 7)
-nobs.fast <- rep(1553, 7)
-nobs.slow <- rep(1553, 7)
-nobs.east <- rep(2046, 7)
-nobs.west <- rep(1060, 7)
+nobs.main <- rep(3106, 8)
+nobs.rural <- rep(1309, 8)
+nobs.urban <- rep(1797, 8)
+nobs.large <- rep(805, 8)
+nobs.small <- rep(992, 8)
+nobs.rich <- rep(1553, 8)
+nobs.poor <- rep(1553, 8)
+nobs.fast <- rep(1553, 8)
+nobs.slow <- rep(1553, 8)
+nobs.east <- rep(2046, 8)
+nobs.west <- rep(1060, 8)
 
 additional.stats <- as.data.frame(rbind(f.stats.main, f.stats.rural, f.stats.urban, f.stats.large, f.stats.small, f.stats.rich, f.stats.poor, f.stats.fast, f.stats.slow, f.stats.east, f.stats.west,
                                         nobs.main, nobs.rural, nobs.urban, nobs.large, nobs.small, nobs.rich, nobs.poor, nobs.fast, nobs.slow, nobs.east, nobs.west))
@@ -954,7 +1009,7 @@ write.csv(additional.stats, paste0(direc, 'results/additional_stats.txt'), row.n
 
 # Creating a summary statistics figure
 
-sdf <- df[,c(33, 59, 2:8, 9:11, 13:17, 46)]
+sdf <- df[,c(33, 60, 1:8, 9:11, 13:17, 46)]
 
 sdf$Education_BS <- sdf$Education_BS / 100
 sdf$New_Residents <- sdf$New_Residents / 100
@@ -1110,6 +1165,10 @@ kdf <- df[!(df$ID %in% outliers),]
 
 # Running regressions for all counties
 
+water.mod <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                         + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                         + Wetlands.2011 + Rural + Small + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf)
+
 development.mod <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                          + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                          + Wetlands.2011 + Rural + Small + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf)
@@ -1138,6 +1197,7 @@ wetlands.mod <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income + 
                       + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                       + Wetlands.2011 + Rural + Small + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf)
 
+water.modx <- coeftest(water.mod, vcov = vcovCL(water.mod, type = 'HC1'))
 development.modx <- coeftest(development.mod, vcov = vcovCL(development.mod, type = 'HC1'))
 barren.modx <- coeftest(barren.mod, vcov = vcovCL(barren.mod, type = 'HC1'))
 forests.modx <- coeftest(forests.mod, vcov = vcovCL(forests.mod, type = 'HC1'))
@@ -1146,13 +1206,17 @@ grasslands.modx <- coeftest(grasslands.mod, vcov = vcovCL(grasslands.mod, type =
 agriculture.modx <- coeftest(agriculture.mod, vcov = vcovCL(agriculture.mod, type = 'HC1'))
 wetlands.modx <- coeftest(wetlands.mod, vcov = vcovCL(wetlands.mod, type = 'HC1'))
 
-stargazer(development.mod, barren.mod, forests.mod, shrublands.mod, grasslands.mod, agriculture.mod, wetlands.mod,
+stargazer(water.mod, development.mod, barren.mod, forests.mod, shrublands.mod, grasslands.mod, agriculture.mod, wetlands.mod,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.modx, barren.modx, forests.modx, shrublands.modx, grasslands.modx, agriculture.modx, wetlands.modx,
+stargazer(water.modx, development.modx, barren.modx, forests.modx, shrublands.modx, grasslands.modx, agriculture.modx, wetlands.modx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Running regressions for rural counties
+
+water.rural <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                           + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Rural == 1),])
 
 development.rural <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                            + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -1182,6 +1246,7 @@ wetlands.rural <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income 
                         + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                         + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Rural == 1),])
 
+water.ruralx <- coeftest(water.rural, vcov = vcovCL(water.rural, type = 'HC1'))
 development.ruralx <- coeftest(development.rural, vcov = vcovCL(development.rural, type = 'HC1'))
 barren.ruralx <- coeftest(barren.rural, vcov = vcovCL(barren.rural, type = 'HC1'))
 forests.ruralx <- coeftest(forests.rural, vcov = vcovCL(forests.rural, type = 'HC1'))
@@ -1190,13 +1255,17 @@ grasslands.ruralx <- coeftest(grasslands.rural, vcov = vcovCL(grasslands.rural, 
 agriculture.ruralx <- coeftest(agriculture.rural, vcov = vcovCL(agriculture.rural, type = 'HC1'))
 wetlands.ruralx <- coeftest(wetlands.rural, vcov = vcovCL(wetlands.rural, type = 'HC1'))
 
-stargazer(development.rural, barren.rural, forests.rural, shrublands.rural, grasslands.rural, agriculture.rural, wetlands.rural,
+stargazer(water.rural, development.rural, barren.rural, forests.rural, shrublands.rural, grasslands.rural, agriculture.rural, wetlands.rural,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.ruralx, barren.ruralx, forests.ruralx, shrublands.ruralx, grasslands.ruralx, agriculture.ruralx, wetlands.ruralx,
+stargazer(water.ruralx, development.ruralx, barren.ruralx, forests.ruralx, shrublands.ruralx, grasslands.ruralx, agriculture.ruralx, wetlands.ruralx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Running regressions for all non-rural counties
+
+water.urban <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                           + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Rural == 0),])
 
 development.urban <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                            + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -1226,6 +1295,7 @@ wetlands.urban <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income 
                         + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                         + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Rural == 0),])
 
+water.urbanx <- coeftest(water.urban, vcov = vcovCL(water.urban, type = 'HC1'))
 development.urbanx <- coeftest(development.urban, vcov = vcovCL(development.urban, type = 'HC1'))
 barren.urbanx <- coeftest(barren.urban, vcov = vcovCL(barren.urban, type = 'HC1'))
 forests.urbanx <- coeftest(forests.urban, vcov = vcovCL(forests.urban, type = 'HC1'))
@@ -1234,13 +1304,17 @@ grasslands.urbanx <- coeftest(grasslands.urban, vcov = vcovCL(grasslands.urban, 
 agriculture.urbanx <- coeftest(agriculture.urban, vcov = vcovCL(agriculture.urban, type = 'HC1'))
 wetlands.urbanx <- coeftest(wetlands.urban, vcov = vcovCL(wetlands.urban, type = 'HC1'))
 
-stargazer(development.urban, barren.urban, forests.urban, shrublands.urban, grasslands.urban, agriculture.urban, wetlands.urban,
+stargazer(water.urban, development.urban, barren.urban, forests.urban, shrublands.urban, grasslands.urban, agriculture.urban, wetlands.urban,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.urbanx, barren.urbanx, forests.urbanx, shrublands.urbanx, grasslands.urbanx, agriculture.urbanx, wetlands.urbanx,
+stargazer(water.urbanx, development.urbanx, barren.urbanx, forests.urbanx, shrublands.urbanx, grasslands.urbanx, agriculture.urbanx, wetlands.urbanx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Running regressions for all large metropolitan counties (UR codes 1-3)
+
+water.large <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                           + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Large == 1),])
 
 development.large <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                            + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -1270,6 +1344,7 @@ wetlands.large <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income 
                         + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                         + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Large == 1),])
 
+water.largex <- coeftest(water.large, vcov = vcovCL(water.large, type = 'HC1'))
 development.largex <- coeftest(development.large, vcov = vcovCL(development.large, type = 'HC1'))
 barren.largex <- coeftest(barren.large, vcov = vcovCL(barren.large, type = 'HC1'))
 forests.largex <- coeftest(forests.large, vcov = vcovCL(forests.large, type = 'HC1'))
@@ -1278,13 +1353,17 @@ grasslands.largex <- coeftest(grasslands.large, vcov = vcovCL(grasslands.large, 
 agriculture.largex <- coeftest(agriculture.large, vcov = vcovCL(agriculture.large, type = 'HC1'))
 wetlands.largex <- coeftest(wetlands.large, vcov = vcovCL(wetlands.large, type = 'HC1'))
 
-stargazer(development.large, barren.large, forests.large, shrublands.large, grasslands.large, agriculture.large, wetlands.large,
+stargazer(water.large, development.large, barren.large, forests.large, shrublands.large, grasslands.large, agriculture.large, wetlands.large,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.largex, barren.largex, forests.largex, shrublands.largex, grasslands.largex, agriculture.largex, wetlands.largex,
+stargazer(water.largex, development.largex, barren.largex, forests.largex, shrublands.largex, grasslands.largex, agriculture.largex, wetlands.largex,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Running regressions for all small metropolitan counties (UR codes 4 and 5)
+
+water.small <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                           + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Small == 1),])
 
 development.small <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                            + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -1314,6 +1393,7 @@ wetlands.small <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income 
                         + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                         + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Small == 1),])
 
+water.smallx <- coeftest(water.small, vcov = vcovCL(water.small, type = 'HC1'))
 development.smallx <- coeftest(development.small, vcov = vcovCL(development.small, type = 'HC1'))
 barren.smallx <- coeftest(barren.small, vcov = vcovCL(barren.small, type = 'HC1'))
 forests.smallx <- coeftest(forests.small, vcov = vcovCL(forests.small, type = 'HC1'))
@@ -1322,10 +1402,10 @@ grasslands.smallx <- coeftest(grasslands.small, vcov = vcovCL(grasslands.small, 
 agriculture.smallx <- coeftest(agriculture.small, vcov = vcovCL(agriculture.small, type = 'HC1'))
 wetlands.smallx <- coeftest(wetlands.small, vcov = vcovCL(wetlands.small, type = 'HC1'))
 
-stargazer(development.small, barren.small, forests.small, shrublands.small, grasslands.small, agriculture.small, wetlands.small,
+stargazer(water.small, development.small, barren.small, forests.small, shrublands.small, grasslands.small, agriculture.small, wetlands.small,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.smallx, barren.smallx, forests.smallx, shrublands.smallx, grasslands.smallx, agriculture.smallx, wetlands.smallx,
+stargazer(water.smallx, development.smallx, barren.smallx, forests.smallx, shrublands.smallx, grasslands.smallx, agriculture.smallx, wetlands.smallx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Determining the top and bottom half of remaining obs for growth rates
@@ -1333,6 +1413,10 @@ stargazer(development.smallx, barren.smallx, forests.smallx, shrublands.smallx, 
 kdf$Rich <- as.integer(kdf$Income > median(kdf$Income, na.rm = T))
 
 # Running regressions for higher half of incomes
+
+water.rich <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                          + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                          + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Rich == 1),])
 
 development.rich <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -1362,6 +1446,7 @@ wetlands.rich <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income +
                        + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                        + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Rich == 1),])
 
+water.richx <- coeftest(water.rich, vcov = vcovCL(water.rich, type = 'HC1'))
 development.richx <- coeftest(development.rich, vcov = vcovCL(development.rich, type = 'HC1'))
 barren.richx <- coeftest(barren.rich, vcov = vcovCL(barren.rich, type = 'HC1'))
 forests.richx <- coeftest(forests.rich, vcov = vcovCL(forests.rich, type = 'HC1'))
@@ -1370,13 +1455,17 @@ grasslands.richx <- coeftest(grasslands.rich, vcov = vcovCL(grasslands.rich, typ
 agriculture.richx <- coeftest(agriculture.rich, vcov = vcovCL(agriculture.rich, type = 'HC1'))
 wetlands.richx <- coeftest(wetlands.rich, vcov = vcovCL(wetlands.rich, type = 'HC1'))
 
-stargazer(development.rich, barren.rich, forests.rich, shrublands.rich, grasslands.rich, agriculture.rich, wetlands.rich,
+stargazer(water.rich, development.rich, barren.rich, forests.rich, shrublands.rich, grasslands.rich, agriculture.rich, wetlands.rich,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.richx, barren.richx, forests.richx, shrublands.richx, grasslands.richx, agriculture.richx, wetlands.richx,
+stargazer(water.richx, development.richx, barren.richx, forests.richx, shrublands.richx, grasslands.richx, agriculture.richx, wetlands.richx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Running regressions for lower half of incomes
+
+water.poor <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                          + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                          + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Rich == 0),])
 
 development.poor <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -1406,6 +1495,7 @@ wetlands.poor <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income +
                        + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                        + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Rich == 0),])
 
+water.poorx <- coeftest(water.poor, vcov = vcovCL(water.poor, type = 'HC1'))
 development.poorx <- coeftest(development.poor, vcov = vcovCL(development.poor, type = 'HC1'))
 barren.poorx <- coeftest(barren.poor, vcov = vcovCL(barren.poor, type = 'HC1'))
 forests.poorx <- coeftest(forests.poor, vcov = vcovCL(forests.poor, type = 'HC1'))
@@ -1414,10 +1504,10 @@ grasslands.poorx <- coeftest(grasslands.poor, vcov = vcovCL(grasslands.poor, typ
 agriculture.poorx <- coeftest(agriculture.poor, vcov = vcovCL(agriculture.poor, type = 'HC1'))
 wetlands.poorx <- coeftest(wetlands.poor, vcov = vcovCL(wetlands.poor, type = 'HC1'))
 
-stargazer(development.poor, barren.poor, forests.poor, shrublands.poor, grasslands.poor, agriculture.poor, wetlands.poor,
+stargazer(water.poor, development.poor, barren.poor, forests.poor, shrublands.poor, grasslands.poor, agriculture.poor, wetlands.poor,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.poorx, barren.poorx, forests.poorx, shrublands.poorx, grasslands.poorx, agriculture.poorx, wetlands.poorx,
+stargazer(water.poorx, development.poorx, barren.poorx, forests.poorx, shrublands.poorx, grasslands.poorx, agriculture.poorx, wetlands.poorx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Determining the top and bottom half of remaining obs for growth rates
@@ -1425,6 +1515,10 @@ stargazer(development.poorx, barren.poorx, forests.poorx, shrublands.poorx, gras
 kdf$Fast <- as.integer(kdf$Employment_Growth_Rate > median(kdf$Employment_Growth_Rate, na.rm = T))
 
 # Running regressions for higher half of growth rates
+
+water.fast <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                          + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                          + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Fast == 1),])
 
 development.fast <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -1454,6 +1548,7 @@ wetlands.fast <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income +
                        + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                        + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Fast == 1),])
 
+water.fastx <- coeftest(water.fast, vcov = vcovCL(water.fast, type = 'HC1'))
 development.fastx <- coeftest(development.fast, vcov = vcovCL(development.fast, type = 'HC1'))
 barren.fastx <- coeftest(barren.fast, vcov = vcovCL(barren.fast, type = 'HC1'))
 forests.fastx <- coeftest(forests.fast, vcov = vcovCL(forests.fast, type = 'HC1'))
@@ -1462,13 +1557,17 @@ grasslands.fastx <- coeftest(grasslands.fast, vcov = vcovCL(grasslands.fast, typ
 agriculture.fastx <- coeftest(agriculture.fast, vcov = vcovCL(agriculture.fast, type = 'HC1'))
 wetlands.fastx <- coeftest(wetlands.fast, vcov = vcovCL(wetlands.fast, type = 'HC1'))
 
-stargazer(development.fast, barren.fast, forests.fast, shrublands.fast, grasslands.fast, agriculture.fast, wetlands.fast,
+stargazer(water.fast, development.fast, barren.fast, forests.fast, shrublands.fast, grasslands.fast, agriculture.fast, wetlands.fast,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.fastx, barren.fastx, forests.fastx, shrublands.fastx, grasslands.fastx, agriculture.fastx, wetlands.fastx,
+stargazer(water.fastx, development.fastx, barren.fastx, forests.fastx, shrublands.fastx, grasslands.fastx, agriculture.fastx, wetlands.fastx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Running regressions for lower half of growth rates
+
+water.slow <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                          + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                          + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Fast == 0),])
 
 development.slow <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -1498,6 +1597,7 @@ wetlands.slow <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income +
                        + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                        + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Fast == 0),])
 
+water.slowx <- coeftest(water.slow, vcov = vcovCL(water.slow, type = 'HC1'))
 development.slowx <- coeftest(development.slow, vcov = vcovCL(development.slow, type = 'HC1'))
 barren.slowx <- coeftest(barren.slow, vcov = vcovCL(barren.slow, type = 'HC1'))
 forests.slowx <- coeftest(forests.slow, vcov = vcovCL(forests.slow, type = 'HC1'))
@@ -1506,13 +1606,17 @@ grasslands.slowx <- coeftest(grasslands.slow, vcov = vcovCL(grasslands.slow, typ
 agriculture.slowx <- coeftest(agriculture.slow, vcov = vcovCL(agriculture.slow, type = 'HC1'))
 wetlands.slowx <- coeftest(wetlands.slow, vcov = vcovCL(wetlands.slow, type = 'HC1'))
 
-stargazer(development.slow, barren.slow, forests.slow, shrublands.slow, grasslands.slow, agriculture.slow, wetlands.slow,
+stargazer(water.slow, development.slow, barren.slow, forests.slow, shrublands.slow, grasslands.slow, agriculture.slow, wetlands.slow,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.slowx, barren.slowx, forests.slowx, shrublands.slowx, grasslands.slowx, agriculture.slowx, wetlands.slowx,
+stargazer(water.slowx, development.slowx, barren.slowx, forests.slowx, shrublands.slowx, grasslands.slowx, agriculture.slowx, wetlands.slowx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Running regressions for the east
+
+water.east <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                          + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                          + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Region == 'East'),])
 
 development.east <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -1542,6 +1646,7 @@ wetlands.east <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income +
                        + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                        + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Region == 'East'),])
 
+water.eastx <- coeftest(water.east, vcov = vcovCL(water.east, type = 'HC1'))
 development.eastx <- coeftest(development.east, vcov = vcovCL(development.east, type = 'HC1'))
 barren.eastx <- coeftest(barren.east, vcov = vcovCL(barren.east, type = 'HC1'))
 forests.eastx <- coeftest(forests.east, vcov = vcovCL(forests.east, type = 'HC1'))
@@ -1550,13 +1655,17 @@ grasslands.eastx <- coeftest(grasslands.east, vcov = vcovCL(grasslands.east, typ
 agriculture.eastx <- coeftest(agriculture.east, vcov = vcovCL(agriculture.east, type = 'HC1'))
 wetlands.eastx <- coeftest(wetlands.east, vcov = vcovCL(wetlands.east, type = 'HC1'))
 
-stargazer(development.east, barren.east, forests.east, shrublands.east, grasslands.east, agriculture.east, wetlands.east,
+stargazer(water.east, development.east, barren.east, forests.east, shrublands.east, grasslands.east, agriculture.east, wetlands.east,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.eastx, barren.eastx, forests.eastx, shrublands.eastx, grasslands.eastx, agriculture.eastx, wetlands.eastx,
+stargazer(water.eastx, development.eastx, barren.eastx, forests.eastx, shrublands.eastx, grasslands.eastx, agriculture.eastx, wetlands.eastx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Running regressions for the west
+
+water.west <- ivreg(Water ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
+                          + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
+                          + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Region == 'West'),])
 
 development.west <- ivreg(Development ~ Employment_Growth_Rate + Population + Income + Education_BS + Unemployment + Commute_Solo_By_Car + Public_Transit + New_Residents
                           + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
@@ -1586,6 +1695,7 @@ wetlands.west <- ivreg(Wetlands ~ Employment_Growth_Rate + Population + Income +
                        + Housing_Units + Development.2011 + Barren.2011 + Forests.2011 + Shrublands.2011 + Grasslands.2011 + Agriculture.2011
                        + Wetlands.2011 + factor(State) | . - Employment_Growth_Rate + Bartik, data = kdf[which(kdf$Region == 'West'),])
 
+water.westx <- coeftest(water.west, vcov = vcovCL(water.west, type = 'HC1'))
 development.westx <- coeftest(development.west, vcov = vcovCL(development.west, type = 'HC1'))
 barren.westx <- coeftest(barren.west, vcov = vcovCL(barren.west, type = 'HC1'))
 forests.westx <- coeftest(forests.west, vcov = vcovCL(forests.west, type = 'HC1'))
@@ -1594,49 +1704,49 @@ grasslands.westx <- coeftest(grasslands.west, vcov = vcovCL(grasslands.west, typ
 agriculture.westx <- coeftest(agriculture.west, vcov = vcovCL(agriculture.west, type = 'HC1'))
 wetlands.westx <- coeftest(wetlands.west, vcov = vcovCL(wetlands.west, type = 'HC1'))
 
-stargazer(development.west, barren.west, forests.west, shrublands.west, grasslands.west, agriculture.west, wetlands.west,
+stargazer(water.west, development.west, barren.west, forests.west, shrublands.west, grasslands.west, agriculture.west, wetlands.west,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
-stargazer(development.westx, barren.westx, forests.westx, shrublands.westx, grasslands.westx, agriculture.westx, wetlands.westx,
+stargazer(water.westx, development.westx, barren.westx, forests.westx, shrublands.westx, grasslands.westx, agriculture.westx, wetlands.westx,
           type = 'text', omit.stat = c('f', 'ser'), omit = c('State'))
 
 # Saving results
 
-write.csv(stargazer(development.modx, barren.modx, forests.modx, shrublands.modx, grasslands.modx, agriculture.modx, wetlands.modx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_main.txt'), row.names = FALSE)
-write.csv(stargazer(development.ruralx, barren.ruralx, forests.ruralx, shrublands.ruralx, grasslands.ruralx, agriculture.ruralx, wetlands.ruralx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_rural.txt'), row.names = FALSE)
-write.csv(stargazer(development.urbanx, barren.urbanx, forests.urbanx, shrublands.urbanx, grasslands.urbanx, agriculture.urbanx, wetlands.urbanx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_non_rural.txt'), row.names = FALSE)
-write.csv(stargazer(development.largex, barren.largex, forests.largex, shrublands.largex, grasslands.largex, agriculture.largex, wetlands.largex, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_large_urban.txt'), row.names = FALSE)
-write.csv(stargazer(development.smallx, barren.smallx, forests.smallx, shrublands.smallx, grasslands.smallx, agriculture.smallx, wetlands.smallx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_small_urban.txt'), row.names = FALSE)
-write.csv(stargazer(development.richx, barren.richx, forests.richx, shrublands.richx, grasslands.richx, agriculture.richx, wetlands.richx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_rich.txt'), row.names = FALSE)
-write.csv(stargazer(development.poorx, barren.poorx, forests.poorx, shrublands.poorx, grasslands.poorx, agriculture.poorx, wetlands.poorx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_poor.txt'), row.names = FALSE)
-write.csv(stargazer(development.fastx, barren.fastx, forests.fastx, shrublands.fastx, grasslands.fastx, agriculture.fastx, wetlands.fastx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_fast.txt'), row.names = FALSE)
-write.csv(stargazer(development.slowx, barren.slowx, forests.slowx, shrublands.slowx, grasslands.slowx, agriculture.slowx, wetlands.slowx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_slow.txt'), row.names = FALSE)
-write.csv(stargazer(development.eastx, barren.eastx, forests.eastx, shrublands.eastx, grasslands.eastx, agriculture.eastx, wetlands.eastx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_east.txt'), row.names = FALSE)
-write.csv(stargazer(development.westx, barren.westx, forests.westx, shrublands.westx, grasslands.westx, agriculture.westx, wetlands.westx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_west.txt'), row.names = FALSE)
+write.csv(stargazer(water.modx, development.modx, barren.modx, forests.modx, shrublands.modx, grasslands.modx, agriculture.modx, wetlands.modx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_main.txt'), row.names = FALSE)
+write.csv(stargazer(water.ruralx, development.ruralx, barren.ruralx, forests.ruralx, shrublands.ruralx, grasslands.ruralx, agriculture.ruralx, wetlands.ruralx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_rural.txt'), row.names = FALSE)
+write.csv(stargazer(water.urbanx, development.urbanx, barren.urbanx, forests.urbanx, shrublands.urbanx, grasslands.urbanx, agriculture.urbanx, wetlands.urbanx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_non_rural.txt'), row.names = FALSE)
+write.csv(stargazer(water.largex, development.largex, barren.largex, forests.largex, shrublands.largex, grasslands.largex, agriculture.largex, wetlands.largex, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_large_urban.txt'), row.names = FALSE)
+write.csv(stargazer(water.smallx, development.smallx, barren.smallx, forests.smallx, shrublands.smallx, grasslands.smallx, agriculture.smallx, wetlands.smallx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_small_urban.txt'), row.names = FALSE)
+write.csv(stargazer(water.richx, development.richx, barren.richx, forests.richx, shrublands.richx, grasslands.richx, agriculture.richx, wetlands.richx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_rich.txt'), row.names = FALSE)
+write.csv(stargazer(water.poorx, development.poorx, barren.poorx, forests.poorx, shrublands.poorx, grasslands.poorx, agriculture.poorx, wetlands.poorx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_poor.txt'), row.names = FALSE)
+write.csv(stargazer(water.fastx, development.fastx, barren.fastx, forests.fastx, shrublands.fastx, grasslands.fastx, agriculture.fastx, wetlands.fastx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_fast.txt'), row.names = FALSE)
+write.csv(stargazer(water.slowx, development.slowx, barren.slowx, forests.slowx, shrublands.slowx, grasslands.slowx, agriculture.slowx, wetlands.slowx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_slow.txt'), row.names = FALSE)
+write.csv(stargazer(water.eastx, development.eastx, barren.eastx, forests.eastx, shrublands.eastx, grasslands.eastx, agriculture.eastx, wetlands.eastx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_east.txt'), row.names = FALSE)
+write.csv(stargazer(water.westx, development.westx, barren.westx, forests.westx, shrublands.westx, grasslands.westx, agriculture.westx, wetlands.westx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_west.txt'), row.names = FALSE)
 
-f.stats.main <- rep(73.64, 7)
-f.stats.rural <- rep(39.21, 7)
-f.stats.urban <- rep(13.01, 7)
-f.stats.large <- rep(2.97, 7)
-f.stats.small <- rep(9.23, 7)
-f.stats.rich <- rep(62.68, 7)
-f.stats.poor <- rep(35.90, 7)
-f.stats.fast <- rep(27.33, 7)
-f.stats.slow <- rep(40.31, 7)
-f.stats.east <- rep(17.52, 7)
-f.stats.west <- rep(80.80, 7)
+f.stats.main <- rep(73.64, 8)
+f.stats.rural <- rep(39.21, 8)
+f.stats.urban <- rep(13.01, 8)
+f.stats.large <- rep(2.97, 8)
+f.stats.small <- rep(9.23, 8)
+f.stats.rich <- rep(62.68, 8)
+f.stats.poor <- rep(35.90, 8)
+f.stats.fast <- rep(27.33, 8)
+f.stats.slow <- rep(40.31, 8)
+f.stats.east <- rep(17.52, 8)
+f.stats.west <- rep(80.80, 8)
 
-nobs.main <- rep(2892, 7)
-nobs.rural <- rep(1180, 7)
-nobs.urban <- rep(1712, 7)
-nobs.large <- rep(764, 7)
-nobs.small <- rep(948, 7)
-nobs.rich <- rep(1446, 7)
-nobs.poor <- rep(1446, 7)
-nobs.fast <- rep(1446, 7)
-nobs.slow <- rep(1446, 7)
-nobs.east <- rep(1953, 7)
-nobs.west <- rep(939, 7)
+nobs.main <- rep(2892, 8)
+nobs.rural <- rep(1180, 8)
+nobs.urban <- rep(1712, 8)
+nobs.large <- rep(764, 8)
+nobs.small <- rep(948, 8)
+nobs.rich <- rep(1446, 8)
+nobs.poor <- rep(1446, 8)
+nobs.fast <- rep(1446, 8)
+nobs.slow <- rep(1446, 8)
+nobs.east <- rep(1953, 8)
+nobs.west <- rep(939, 8)
 
 additional.stats <- as.data.frame(rbind(f.stats.main, f.stats.rural, f.stats.urban, f.stats.large, f.stats.small, f.stats.rich, f.stats.poor, f.stats.fast, f.stats.slow, f.stats.east, f.stats.west,
                                         nobs.main, nobs.rural, nobs.urban, nobs.large, nobs.small, nobs.rich, nobs.poor, nobs.fast, nobs.slow, nobs.east, nobs.west))
