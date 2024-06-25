@@ -43,8 +43,17 @@ for (s in states) {
   
   print(paste0('Collecting ACS data for state FIPS ', s, '.......'))
   
-  tmp21 <- get_acs(state = s, geography = 'county', year = 2021, variables = c('DP05_0001', 'DP03_0062', 'DP02_0068P', 'DP02_0067P', 'DP02_0059', 'DP04_0001', 'DP03_0009P', 'DP02_0053', 'DP02_0053P', 'DP02_0083P', 'DP03_0019', 'DP03_0021', 'DP03_0033', 'DP03_0034', 'DP03_0035', 'DP03_0036', 'DP03_0037', 'DP03_0038', 'DP03_0039', 'DP03_0040', 'DP03_0041', 'DP03_0042', 'DP03_0043', 'DP03_0044', 'DP03_0045'))
-  tmp11 <- get_acs(state = s, geography = 'county', year = 2011, variables = c('DP05_0001', 'DP03_0062', 'DP02_0068P', 'DP02_0067P', 'DP02_0059', 'DP04_0001', 'DP03_0009P', 'DP02_0053', 'DP02_0053P', 'DP02_0083P', 'DP03_0019', 'DP03_0021', 'DP03_0033', 'DP03_0034', 'DP03_0035', 'DP03_0036', 'DP03_0037', 'DP03_0038', 'DP03_0039', 'DP03_0040', 'DP03_0041', 'DP03_0042', 'DP03_0043', 'DP03_0044', 'DP03_0045'))
+  tmp21 <- get_acs(state = s, geography = 'county', year = 2021, variables = c('DP05_0001', 'DP03_0062', 'DP02_0067P', 'DP02_0068P', 'DP03_0009P', 'DP02_0084P', 'DP03_0019',
+                                                                               'DP03_0021', 'DP04_0001', 'DP03_0033', 'DP03_0034', 'DP03_0035', 'DP03_0036', 'DP03_0037',
+                                                                               'DP03_0038', 'DP03_0039', 'DP03_0040', 'DP03_0041', 'DP03_0042', 'DP03_0043', 'DP03_0044',
+                                                                               'DP03_0045', 'DP05_0002', 'DP05_0008', 'DP05_0009', 'DP05_0010', 'DP05_0011', 'DP05_0012',
+                                                                               'DP05_0013', 'DP05_0014', 'DP05_0015', 'DP05_0016', 'DP05_0017', 'DP02_0060', 'DP02_0061'))
+  
+  tmp11 <- get_acs(state = s, geography = 'county', year = 2011, variables = c('DP05_0001', 'DP03_0062', 'DP02_0066P', 'DP02_0067P', 'DP03_0009P', 'DP02_0082P', 'DP03_0019',
+                                                                               'DP03_0021', 'DP04_0001', 'DP03_0033', 'DP03_0034', 'DP03_0035', 'DP03_0036', 'DP03_0037',
+                                                                               'DP03_0038', 'DP03_0039', 'DP03_0040', 'DP03_0041', 'DP03_0042', 'DP03_0043', 'DP03_0044',
+                                                                               'DP03_0045', 'DP05_0002', 'DP05_0008', 'DP05_0009', 'DP05_0010', 'DP05_0011', 'DP05_0012',
+                                                                               'DP05_0013', 'DP05_0014', 'DP05_0015', 'DP05_0016', 'DP05_0017', 'DP02_0059', 'DP02_0060'))
   
   c21 <- rbind(c21, tmp21)
   c11 <- rbind(c11, tmp11)
@@ -60,11 +69,15 @@ inc <- c()
 ed <- c()
 ed2 <- c()
 emp <- c()
-school <- c()
 hunits <- c()
 movers <- c()
 comms <- c()
 pt <- c()
+men <- c()
+age.15.34 <- c()
+age.35.64 <- c()
+age.65 <- c()
+nohs <- c()
 outdo <- c()
 cons <- c()
 manu <- c()
@@ -90,7 +103,7 @@ for (i in 1:(nrow(data)/2)) {
   ed <- c(ed, tmp21[which(tmp21$variable == 'DP02_0068P'),]$estimate[1])
   ed2 <- c(ed2, tmp21[which(tmp21$variable == 'DP02_0067P'),]$estimate[1])
   emp <- c(emp, tmp21[which(tmp21$variable == 'DP03_0009P'),]$estimate[1])
-  movers <- c(movers, tmp21[which(tmp21$variable == 'DP02_0083P'),]$estimate[1])
+  movers <- c(movers, tmp21[which(tmp21$variable == 'DP02_0084P'),]$estimate[1])
   comms <- c(comms, log(tmp21[which(tmp21$variable == 'DP03_0019'),]$estimate[1]))
   pt <- c(pt, max(0, log(tmp21[which(tmp21$variable == 'DP03_0021'),]$estimate[1])))
   hunits <- c(hunits, log(tmp21[which(tmp21$variable == 'DP04_0001'),]$estimate[1]))
@@ -107,6 +120,11 @@ for (i in 1:(nrow(data)/2)) {
   amen <- c(amen, tmp21[which(tmp21$variable == 'DP03_0043'),]$estimate[1])
   other <- c(other, tmp21[which(tmp21$variable == 'DP03_0044'),]$estimate[1])
   pad <- c(pad, tmp21[which(tmp21$variable == 'DP03_0045'),]$estimate[1])
+  men <- c(men, tmp21[which(tmp21$variable == 'DP05_0002'),]$estimate[1])
+  age.15.34 <- c(age.15.34, tmp21[which(tmp21$variable == 'DP05_0008'),]$estimate[1] + tmp21[which(tmp21$variable == 'DP05_0009'),]$estimate[1] + tmp21[which(tmp21$variable == 'DP05_0010'),]$estimate[1])
+  age.35.64 <- c(age.35.64, tmp21[which(tmp21$variable == 'DP05_0011'),]$estimate[1] + tmp21[which(tmp21$variable == 'DP05_0012'),]$estimate[1] + tmp21[which(tmp21$variable == 'DP05_0013'),]$estimate[1] + tmp21[which(tmp21$variable == 'DP05_0014'),]$estimate[1])
+  age.65 <- c(age.65, tmp21[which(tmp21$variable == 'DP05_0015'),]$estimate[1] + tmp21[which(tmp21$variable == 'DP05_0016'),]$estimate[1] + tmp21[which(tmp21$variable == 'DP05_0017'),]$estimate[1])
+  nohs <- c(nohs, tmp21[which(tmp21$variable == 'DP02_0060P'),]$estimate[1] + tmp21[which(tmp21$variable == 'DP02_0061P'),]$estimate[1])
   
 }
 
@@ -119,9 +137,9 @@ for (i in 3109:6216) {
   pop <- c(pop, log(tmp11[which(tmp11$variable == 'DP05_0001'),]$estimate[1]))
   inc <- c(inc, log(tmp11[which(tmp11$variable == 'DP03_0062'),]$estimate[1]))
   ed <- c(ed, tmp11[which(tmp11$variable == 'DP02_0067P'),]$estimate[1])
-  ed2 <- c(ed2, tmp11[which(tmp11$variable == 'DP02_0067P'),]$estimate[1])
+  ed2 <- c(ed2, tmp11[which(tmp11$variable == 'DP02_0066P'),]$estimate[1])
   emp <- c(emp, tmp11[which(tmp11$variable == 'DP03_0009P'),]$estimate[1])
-  movers <- c(movers, tmp11[which(tmp11$variable == 'DP02_0083P'),]$estimate[1])
+  movers <- c(movers, tmp11[which(tmp11$variable == 'DP02_0082P'),]$estimate[1])
   comms <- c(comms, log(tmp11[which(tmp11$variable == 'DP03_0019'),]$estimate[1]))
   pt <- c(pt, max(0, log(tmp11[which(tmp11$variable == 'DP03_0021'),]$estimate[1])))
   hunits <- c(hunits, log(tmp11[which(tmp11$variable == 'DP04_0001'),]$estimate[1]))
@@ -138,15 +156,21 @@ for (i in 3109:6216) {
   amen <- c(amen, tmp11[which(tmp11$variable == 'DP03_0043'),]$estimate[1])
   other <- c(other, tmp11[which(tmp11$variable == 'DP03_0044'),]$estimate[1])
   pad <- c(pad, tmp11[which(tmp11$variable == 'DP03_0045'),]$estimate[1])
+  men <- c(men, tmp11[which(tmp11$variable == 'DP05_0002'),]$estimate[1])
+  age.15.34 <- c(age.15.34, tmp11[which(tmp11$variable == 'DP05_0008'),]$estimate[1] + tmp11[which(tmp11$variable == 'DP05_0009'),]$estimate[1] + tmp11[which(tmp11$variable == 'DP05_0010'),]$estimate[1])
+  age.35.64 <- c(age.35.64, tmp11[which(tmp11$variable == 'DP05_0011'),]$estimate[1] + tmp11[which(tmp11$variable == 'DP05_0012'),]$estimate[1] + tmp11[which(tmp11$variable == 'DP05_0013'),]$estimate[1] + tmp11[which(tmp11$variable == 'DP05_0014'),]$estimate[1])
+  age.65 <- c(age.65, tmp11[which(tmp11$variable == 'DP05_0015'),]$estimate[1] + tmp11[which(tmp11$variable == 'DP05_0016'),]$estimate[1] + tmp11[which(tmp11$variable == 'DP05_0017'),]$estimate[1])
+  nohs <- c(nohs, tmp11[which(tmp11$variable == 'DP02_0059P'),]$estimate[1] + tmp11[which(tmp11$variable == 'DP02_0060P'),]$estimate[1])
   
 }
 
-data <- cbind(data, pop, inc, ed, ed2, emp, movers, comms, pt, hunits, outdo, cons, manu, whole, retail, trans, fin, info, pro, sw, amen, other, pad)
+data <- cbind(data, pop, inc, ed, ed2, emp, movers, comms, pt, hunits, men, age.15.34, age.35.64, age.65, nohs, outdo, cons, manu, whole, retail, trans, fin, info, pro, sw, amen, other, pad)
 
-colnames(data) <- c('County', 'Year', 'Water', 'Development', 'Barren', 'Forests', 'Shrublands', 'Grasslands', 'Agriculture', 'Wetlands', 'Population',
-                    'Income', 'Education_BS', 'Education_HS', 'Unemployment', 'New_Residents', 'Commute_Solo_By_Car', 'Public_Transit', 'Housing_Units',
-                    'Outdoors', 'Construction', 'Manufacturing', 'Wholesale', 'Retial', 'Transportation', 'Finance', 'Information', 'Professional',
-                    'Social', 'Amenities', 'Other_Jobs', 'Public_Administration')
+colnames(data) <- c('County', 'Year', 'Water', 'Development', 'Barren', 'Forests', 'Shrublands', 'Grasslands', 'Agriculture',
+                    'Wetlands', 'Population', 'Income', 'Education_BS', 'Education_HS', 'Unemployment', 'New_Residents',
+                    'Commute_Solo_By_Car', 'Public_Transit', 'Housing_Units', 'Men', 'Age_15_34', 'Age_35_64', 'Age_65', 'No_HS', 
+                    'Outdoors', 'Construction', 'Manufacturing', 'Wholesale', 'Retial', 'Transportation', 'Finance', 'Information',
+                    'Professional', 'Social', 'Amenities', 'Other_Jobs', 'Public_Administration')
 
 # Adding a total jobs column to data
 
@@ -294,7 +318,7 @@ ur <- read.csv(paste0(direc, 'data/ur_codes.csv'))
 ur$FIPS <- ifelse(ur$FIPS < 10000, paste0('0', as.character(ur$FIPS)), as.character(ur$FIPS))
 ur$Large <- ifelse(ur$Code <= 3, 1, 0)
 ur$Small <- ifelse(ur$Code %in% c(4,5), 1, 0)
-ur$Rural <- ifelse(ur$Code == 6, 1, 0)
+ur$Rural <- ifelse(ur$Code >= 6, 1, 0)
 
 large <- c()
 small <- c()
@@ -978,17 +1002,17 @@ write.csv(stargazer(water.slow, development.slowx, barren.slowx, forests.slowx, 
 write.csv(stargazer(water.eastx, development.eastx, barren.eastx, forests.eastx, shrublands.eastx, grasslands.eastx, agriculture.eastx, wetlands.eastx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/east.txt'), row.names = FALSE)
 write.csv(stargazer(water.westx, development.westx, barren.westx, forests.westx, shrublands.westx, grasslands.westx, agriculture.westx, wetlands.westx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/west.txt'), row.names = FALSE)
 
-f.stats.main <- rep(65.04, 8)
-f.stats.rural <- rep(22.13, 8)
-f.stats.urban <- rep(76.04, 8)
-f.stats.large <- rep(6.15, 8)
-f.stats.small <- rep(50.11, 8)
-f.stats.rich <- rep(47.48, 8)
-f.stats.poor <- rep(23.50, 8)
-f.stats.fast <- rep(34.63, 8)
-f.stats.slow <- rep(34.20, 8)
-f.stats.east <- rep(20.49, 8)
-f.stats.west <- rep(44.47, 8)
+f.stats.main <- rep(70.14, 8)
+f.stats.rural <- rep(21.22, 8)
+f.stats.urban <- rep(87.52, 8)
+f.stats.large <- rep(11.85, 8)
+f.stats.small <- rep(55.94, 8)
+f.stats.rich <- rep(53.14, 8)
+f.stats.poor <- rep(25.63, 8)
+f.stats.fast <- rep(38.18, 8)
+f.stats.slow <- rep(34.35, 8)
+f.stats.east <- rep(24.96, 8)
+f.stats.west <- rep(49.08, 8)
 
 nobs.main <- rep(3106, 8)
 nobs.rural <- rep(1309, 8)
@@ -1031,6 +1055,9 @@ colnames(sdf)[colnames(sdf) == 'Shrublands'] <- 'Shrublands (Change in Proportio
 colnames(sdf)[colnames(sdf) == 'Grasslands'] <- 'Grassands (Change in Proportion)'
 colnames(sdf)[colnames(sdf) == 'Agriculture'] <- 'Agricultural Land (Change in Proportion)'
 colnames(sdf)[colnames(sdf) == 'Wetlands'] <- 'Wetlands (Change in Proportion)'
+colnames(sdf)[colnames(sdf) == 'Water'] <- 'Water (Change in Proportion)'
+
+sdf <- sdf[complete.cases(sdf),]
 
 datasummary_skim(sdf, fmt = '%.3f')
 
@@ -1724,29 +1751,29 @@ write.csv(stargazer(water.slowx, development.slowx, barren.slowx, forests.slowx,
 write.csv(stargazer(water.eastx, development.eastx, barren.eastx, forests.eastx, shrublands.eastx, grasslands.eastx, agriculture.eastx, wetlands.eastx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_east.txt'), row.names = FALSE)
 write.csv(stargazer(water.westx, development.westx, barren.westx, forests.westx, shrublands.westx, grasslands.westx, agriculture.westx, wetlands.westx, omit.stat = c('f', 'ser'), omit = c('State')), paste0(direc, 'results/drop_west.txt'), row.names = FALSE)
 
-f.stats.main <- rep(73.64, 8)
-f.stats.rural <- rep(39.21, 8)
-f.stats.urban <- rep(13.01, 8)
-f.stats.large <- rep(2.97, 8)
-f.stats.small <- rep(9.23, 8)
-f.stats.rich <- rep(62.68, 8)
-f.stats.poor <- rep(35.90, 8)
-f.stats.fast <- rep(27.33, 8)
-f.stats.slow <- rep(40.31, 8)
-f.stats.east <- rep(17.52, 8)
-f.stats.west <- rep(80.80, 8)
+f.stats.main <- rep(84.63, 8)
+f.stats.rural <- rep(42.88, 8)
+f.stats.urban <- rep(19.28, 8)
+f.stats.large <- rep(6.96, 8)
+f.stats.small <- rep(11.24, 8)
+f.stats.rich <- rep(67.75, 8)
+f.stats.poor <- rep(43.49, 8)
+f.stats.fast <- rep(28.75, 8)
+f.stats.slow <- rep(43.73, 8)
+f.stats.east <- rep(21.54, 8)
+f.stats.west <- rep(93.99, 8)
 
-nobs.main <- rep(2892, 8)
-nobs.rural <- rep(1180, 8)
-nobs.urban <- rep(1712, 8)
-nobs.large <- rep(764, 8)
-nobs.small <- rep(948, 8)
-nobs.rich <- rep(1446, 8)
-nobs.poor <- rep(1446, 8)
-nobs.fast <- rep(1446, 8)
-nobs.slow <- rep(1446, 8)
-nobs.east <- rep(1953, 8)
-nobs.west <- rep(939, 8)
+nobs.main <- rep(2875, 8)
+nobs.rural <- rep(1159, 8)
+nobs.urban <- rep(1716, 8)
+nobs.large <- rep(762, 8)
+nobs.small <- rep(954, 8)
+nobs.rich <- rep(1437, 8)
+nobs.poor <- rep(1438, 8)
+nobs.fast <- rep(1437, 8)
+nobs.slow <- rep(1438, 8)
+nobs.east <- rep(1950, 8)
+nobs.west <- rep(925, 8)
 
 additional.stats <- as.data.frame(rbind(f.stats.main, f.stats.rural, f.stats.urban, f.stats.large, f.stats.small, f.stats.rich, f.stats.poor, f.stats.fast, f.stats.slow, f.stats.east, f.stats.west,
                                         nobs.main, nobs.rural, nobs.urban, nobs.large, nobs.small, nobs.rich, nobs.poor, nobs.fast, nobs.slow, nobs.east, nobs.west))
@@ -1897,6 +1924,50 @@ dev.change.map <- leaflet(shp$geometry) %>% addTiles() %>% addPolygons(weight = 
 
 dev.map
 dev.change.map
+
+# Next up is developed land change
+
+# Add the dev and dev change data
+
+aq <- c()
+aq.c <- c()
+
+for (i in 1:nrow(shp)) {
+  
+  print(paste0('Adding water land data for county ', i, ' of 3,108.......'))
+  
+  tmp <- df %>% filter(County == shp$GEOID[i])
+  tmp2 <- data %>% filter(County == shp$GEOID[i]) %>% filter(Year == 2021)
+  
+  aq <- c(aq, tmp2$Water[1])
+  aq.c <- c(aq.c, tmp$Water[1])
+  
+}
+
+shp$Aqua <- aq
+shp$Aqua.Change <- aq.c
+
+aq <- quantile(shp$Aqua.Change, probs = c(0, 0.2, 0.4, 0.6, 0.8), na.rm = TRUE)
+aqc <- c()
+
+for (i in 1:nrow(shp)) {
+  
+  aqc <- c(aqc, max(1,max(which(aq < shp$Aqua.Change[i]))))
+  
+}
+
+shp$AquaC <- aqc
+
+# Creating leaflets
+
+pal1 <- colorNumeric(palette = c('white', 'blue'), domain = shp$Aqua)
+pal2 <- colorNumeric(palette = c('red', 'pink', 'white', 'lightblue', 'blue'), domain = shp$AquaC)
+
+aqua.map <- leaflet(shp$geometry) %>% addTiles() %>% addPolygons(weight = 1.0, smoothFactor = 1.0, opacity = 1.0, fillOpacity = 1.0, color = 'black', fillColor = pal1(shp$Aqua))
+aqua.change.map <- leaflet(shp$geometry) %>% addTiles() %>% addPolygons(weight = 1.0, smoothFactor = 1.0, opacity = 1.0, fillOpacity = 1.0, color = 'black', fillColor = pal2(shp$AquaC))
+
+aqua.map
+aqua.change.map
 
 # Additional figures - plots of jobs and job growth by county
 
